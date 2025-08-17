@@ -1,0 +1,63 @@
+<template>
+  <div class="multi-select" onclick={stopPropagation}>
+    <label class="slds-form-element__label">
+      <abbr if:true={required} class="slds-required" title="required">*</abbr>
+      {label}
+      <lightning-spinner
+        lwc:if={showSpinner}
+        alternative-text="Loading"
+        size="xx-small"
+        class="slds-m-left_x-small slds-spinner_inline"
+      ></lightning-spinner>
+    </label>
+
+    <!-- Pills only in multi-select mode -->
+    <template if:true={isMultiSelect}>
+      <div class="selected-items">
+        <template for:each={selectedOptions} for:item="option">
+          <span key={option.value} class="pill">
+            {option.label}
+            <button class="remove" onclick={handleRemove} data-value={option.value}>×</button>
+          </span>
+        </template>
+      </div>
+    </template>
+
+    <div class="combo-input-container">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search and select"
+        value={computedInputValue}
+        oninput={handleInput}
+        onclick={openDropdown}
+        aria-labelledby={label}
+      />
+
+      <lightning-icon
+        class="dropdown-icon"
+        icon-name="utility:down"
+        size="x-small"
+        onclick={toggleDropdown}
+      ></lightning-icon>
+    </div>
+
+    <template if:true={showDropdown}>
+      <ul class="dropdown">
+        <template for:each={filteredOptions} for:item="option">
+          <li
+            key={option.value}
+            class="dropdown-item"
+            onclick={handleSelect}
+            data-value={option.value}
+          >
+            {option.label}
+          </li>
+        </template>
+        <template if:true={noOptions}>
+          <li class="dropdown-item disabled">No options found</li>
+        </template>
+      </ul>
+    </template>
+  </div>
+</template>

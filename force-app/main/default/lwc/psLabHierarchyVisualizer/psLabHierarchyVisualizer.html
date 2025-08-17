@@ -1,0 +1,50 @@
+<template>
+    <div class="full-height-card container">
+        <div class="full-height layout-row">
+
+            <div class="settings-container">
+                <div class={settingsSectionClass}>
+                    <div class="settings-area">
+                        <c-ps-lab-detector-filter ondetection={handleDetection} onfilterreset={handleFilterReset}></c-ps-lab-detector-filter>
+                    </div>
+                </div>
+
+                <div class="toggle-panel" onclick={toggleSettings} title="Toggle Settings Panel">
+                    <lightning-button-icon
+                            alternative-text="Toggle Settings"
+                            class="toggle-button slds-button_icon-bare"
+                            icon-name={toggleIcon}
+                            variant="bare"
+                            size="medium">
+                    </lightning-button-icon>
+                </div>
+            </div>
+
+            <div class="tree-area slds-p-top_small">
+                <div class="slds-m-bottom_small slds-p-horizontal_small">
+                    <lightning-button
+                            disabled={isLoading}
+                            label={toggleButtonLabel}
+                            onclick={handleToggleExpansion}
+                            title={toggleButtonLabel}>
+                    </lightning-button>
+                </div>
+                <div class="tree-container slds-is-relative">
+                    <div class="d3-tooltip tooltip-container"></div>
+                    <div if:true={showScrollButton} class="scroll-top-button-container">
+                        <lightning-button-icon
+                                class="scroll-top-button"
+                                alternative-text="Scroll to Top"
+                                icon-name="utility:arrowup"
+                                onclick={handleScrollToTop}
+                                title="Scroll to Top"
+                                variant="border-filled">
+                        </lightning-button-icon>
+                    </div>
+
+                    <lightning-spinner if:true={isLoading} alternative-text="Loading..." size="medium"></lightning-spinner>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

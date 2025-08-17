@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>PSLab_SP.permissionsaddw_d2a2d1922a</label>
+    <protected>false</protected>
+    <values>
+        <field>SystemPermissionAPIName__c</field>
+        <value xsi:type="xsd:string">permissionsaddwavenotificationrecipients</value>
+    </values>
+    <values>
+        <field>SystemPermissionLabel__c</field>
+        <value xsi:type="xsd:string">Add Recipients to CRM Analytics Notifications</value>
+    </values>
+</CustomMetadata>

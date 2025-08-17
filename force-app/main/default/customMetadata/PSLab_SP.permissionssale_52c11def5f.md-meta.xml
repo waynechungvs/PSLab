@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>PSLab_SP.permissionssale_52c11def5f</label>
+    <protected>false</protected>
+    <values>
+        <field>SystemPermissionAPIName__c</field>
+        <value xsi:type="xsd:string">permissionssalesforceforecastinguser</value>
+    </values>
+    <values>
+        <field>SystemPermissionLabel__c</field>
+        <value xsi:type="xsd:string">Forecast on Any Business Model</value>
+    </values>
+</CustomMetadata>

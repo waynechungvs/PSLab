@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>PSLab_SP.permissionssimp_0e2fbdca0a</label>
+    <protected>false</protected>
+    <values>
+        <field>SystemPermissionAPIName__c</field>
+        <value xsi:type="xsd:string">permissionssimplecsvdataimportuser</value>
+    </values>
+    <values>
+        <field>SystemPermissionLabel__c</field>
+        <value xsi:type="xsd:string">Basic Csv Data Import User Permission</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>PSLab_SP.permissionsembe_f4b81a1419</label>
+    <protected>false</protected>
+    <values>
+        <field>SystemPermissionAPIName__c</field>
+        <value xsi:type="xsd:string">permissionsembeddedmessagingagent</value>
+    </values>
+    <values>
+        <field>SystemPermissionLabel__c</field>
+        <value xsi:type="xsd:string">Messaging for In-App and Web Agent</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,95 @@
+.multi-select {
+    position: relative;
+    width: 100%;
+}
+.combo-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.pill {
+    background-color: #e0e0e0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.remove {
+    background: none;
+    border: none;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 2rem 0.5rem 0.5rem;
+    border: 1px solid #000000;
+    border-radius: 4px;
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #555;
+    pointer-events: auto;
+}
+
+.dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 4px;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-item.disabled {
+    color: #999;
+    cursor: default;
+}
+.combo-label {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.required {
+    margin-left: 0.25rem;
+}

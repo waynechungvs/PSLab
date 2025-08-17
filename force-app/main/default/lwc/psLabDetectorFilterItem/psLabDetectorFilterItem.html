@@ -1,0 +1,46 @@
+<!--
+ - Created by oarbani on 16/4/2025.
+ -->
+
+<!-- Ps Lab Detector Filter Item -->
+<template>
+
+  <div lwc:if={isStandardCombobox}>
+    <lightning-combobox label={label}
+                        lwc:if={options}
+                        name={label}
+                        onchange={handleOptionsChange}
+                        options={options}
+                        required={isRequired}
+                        value=""
+    >
+    </lightning-combobox>
+  </div>
+
+
+  <div lwc:if={isCustomCombobox}>
+    <c-ps-lab-multi-select-combo-box label={label}
+                                     lwc:if={options}
+                                     name={label}
+                                     onchange={handleOptionsChange}
+                                     options={options}
+                                     is-multi-select={isMultiSelect}
+                                     required={isRequired}
+                                     value={selectedOptions}></c-ps-lab-multi-select-combo-box>
+  </div>
+
+  <div lwc:if={isCheckboxGroup}>
+    <lightning-checkbox-group
+      class="slds-m-top_small"
+      label={label}
+      lwc:if={label}
+      name={label}
+      onchange={handleOptionsChange}
+      options={options}
+      value={selectedOptions}
+      required={isRequired}
+    ></lightning-checkbox-group>
+  </div>
+
+
+</template>

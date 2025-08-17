@@ -1,0 +1,123 @@
+.full-height-card {
+    height: calc(100vh - 10rem);
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.layout-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    flex-shrink: 0;
+}
+
+.settings-section {
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 0;
+    opacity: 0;
+    border-right: none;
+    transition: max-width 0.35s ease-in-out, opacity 0.3s ease-in-out, border-right 0.35s ease-in-out;
+}
+
+.settings-section.settings-visible {
+    max-width: 300px;
+    opacity: 1;
+    border-right: 1px solid #e0e0e0;
+}
+
+.settings-area {
+    width: 300px;
+    padding: 1rem;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.toggle-panel {
+    width: 20px;
+    background-color: #f3f3f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #ddd;
+    cursor: pointer;
+    height: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.toggle-panel:hover {
+    background-color: #e9e9e9;
+}
+
+.tree-area {
+    flex-grow: 1;
+    display: grid;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.tree-container {
+    flex-grow: 1;
+    overflow: auto;
+    padding: 1rem;
+    position: relative;
+    margin: 0 1rem 1rem 1rem;
+    scroll-behavior: smooth;
+    min-height: 300px;
+}
+
+.tree-container svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.tree-container lightning-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.scroll-top-button-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
+    cursor: pointer;
+    padding: 15px;
+}
+
+.scroll-top-button {
+    --slds-c-button-radius-border: 50%;
+}
+
+.tooltip-container {
+    position: absolute;
+    visibility: hidden;
+    z-index: 10;
+}

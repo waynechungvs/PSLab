@@ -1,0 +1,211 @@
+<template>
+    <lightning-card icon-name="custom:custom63" title="Export Permission Set Permissions">
+        <div class="slds-p-around_medium">
+
+            <!-- Progress Indicator -->
+            <div class="slds-size_1-of-1 slds-m-bottom_large">
+                <lightning-progress-indicator current-step={currentStep} type="base" variant="base">
+                    <lightning-progress-step label="Select Permission Set" value="1"></lightning-progress-step>
+                    <lightning-progress-step label="Select Permission Types" value="2"></lightning-progress-step>
+                    <lightning-progress-step label="Name and Export" value="3"></lightning-progress-step>
+                </lightning-progress-indicator>
+            </div>
+
+            <!-- Main Wizard Content - always 1-of-1 -->
+            <div class="slds-size_1-of-1">
+
+                <!-- Step 1 -->
+                <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium" lwc:if={isStep1}>
+                    <div class="slds-col slds-size_1-of-2 ps-lab-details-container">
+                        <lightning-card>
+                            <h3 slot="title">
+                                <div lwc:if={selectedPermissionSet}>
+                                    <a href={permissionSetUrl} target="_blank">{permissionSetLabel}</a> &nbsp;Permission
+                                    Set Info
+                                </div>
+                                <div lwc:else>Select a permission set to display the info</div>
+                            </h3>
+                            <template if:true={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">
+                                    <p><strong>Description:</strong> {selectedPermissionSetInfo.description}</p>
+                                    <p><strong>Permission Type:</strong> {selectedPermissionSetInfo.type} -
+                                        {selectedPermissionSetInfo.isCustom}</p>
+                                    <p><strong>Included In:</strong> {selectedPermissionSetInfo.includedIn}</p>
+                                    <p><strong>Created By:</strong> {selectedPermissionSetInfo.createdBy}</p>
+                                    <p><strong>Created Date:</strong>
+                                        <lightning-formatted-date-time day="numeric"
+                                                                       hour="2-digit" minute="2-digit" month="numeric"
+                                                                       time-zone-name="short" value={selectedPermissionSetInfo.createdDate}
+                                                                       year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><strong>Last Modified By:</strong> {selectedPermissionSetInfo.lastModifiedBy}</p>
+                                    <p><strong>Last Modified Date:</strong>
+                                        <lightning-formatted-date-time
+                                                day="numeric" hour="2-digit"
+                                                minute="2-digit" month="numeric" time-zone-name="short" value={selectedPermissionSetInfo.lastModifiedDate}
+                                                year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><a href={assignedUsersUrl} target="_blank">View Assignments</a></p>
+                                </div>
+                            </template>
+                            <template if:false={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">No Permission Set selected.</div>
+                            </template>
+                        </lightning-card>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2 ps-lab-choices-container">
+                        <c-ps-lab-multi-select-combo-box label="Choose a Permission Set"
+                                                         lwc:if={permissionSetOptions}
+                                                         name="Choose a Permission Set"
+                                                         onchange={handlePermissionSetChange}
+                                                         options={permissionSetOptions}
+                                                         required
+                                                         value={selectedPermissionSet}>
+                        </c-ps-lab-multi-select-combo-box>
+                    </div>
+                </div>
+
+
+                <!-- Step 2 -->
+
+                <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium" lwc:elseif={isStep2}>
+                    <div class="slds-col slds-size_1-of-2 ps-lab-details-container">
+                        <lightning-card>
+                            <h3 slot="title">
+                                <div lwc:if={selectedPermissionSet}>
+                                    <a href={permissionSetUrl} target="_blank">{permissionSetLabel}</a> &nbsp;Permission
+                                    Set Info
+                                </div>
+                                <div lwc:else>Select a permission set to display the info</div>
+                            </h3>
+                            <template if:true={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">
+                                    <p><strong>Description:</strong> {selectedPermissionSetInfo.description}</p>
+                                    <p><strong>Permission Type:</strong> {selectedPermissionSetInfo.type} -
+                                        {selectedPermissionSetInfo.isCustom}</p>
+                                    <p><strong>Included In:</strong> {selectedPermissionSetInfo.includedIn}</p>
+                                    <p><strong>Created By:</strong> {selectedPermissionSetInfo.createdBy}</p>
+                                    <p><strong>Created Date:</strong>
+                                        <lightning-formatted-date-time day="numeric"
+                                                                       hour="2-digit" minute="2-digit" month="numeric"
+                                                                       time-zone-name="short" value={selectedPermissionSetInfo.createdDate}
+                                                                       year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><strong>Last Modified By:</strong> {selectedPermissionSetInfo.lastModifiedBy}</p>
+                                    <p><strong>Last Modified Date:</strong>
+                                        <lightning-formatted-date-time
+                                                day="numeric" hour="2-digit"
+                                                minute="2-digit" month="numeric" time-zone-name="short" value={selectedPermissionSetInfo.lastModifiedDate}
+                                                year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><a href={assignedUsersUrl} target="_blank">View Assignments</a></p>
+                                </div>
+                            </template>
+                            <template if:false={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">No Permission Set selected.</div>
+                            </template>
+                        </lightning-card>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2 ps-lab-choices-container">
+                        <lightning-checkbox-group
+                                label="Select Permissions to Export"
+                                name=""
+                                onchange={handlePermissionSelection}
+                                options={permissionOptions}
+                                required
+                                value="">
+                        </lightning-checkbox-group>
+                    </div>
+                </div>
+
+
+                <!-- Step 3 -->
+                <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium" lwc:elseif={isStep3}>
+                    <div class="slds-col slds-size_1-of-2 ps-lab-details-container">
+                        <lightning-card>
+                            <h3 slot="title">
+                                <div lwc:if={selectedPermissionSet}>
+                                    <a href={permissionSetUrl} target="_blank">{permissionSetLabel}</a> &nbsp;Permission
+                                    Set Info
+                                </div>
+                                <div lwc:else>Select a permission set to display the info</div>
+                            </h3>
+                            <template if:true={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">
+                                    <p><strong>Description:</strong> {selectedPermissionSetInfo.description}</p>
+                                    <p><strong>Permission Type:</strong> {selectedPermissionSetInfo.type} -
+                                        {selectedPermissionSetInfo.isCustom}</p>
+                                    <p><strong>Included In:</strong> {selectedPermissionSetInfo.includedIn}</p>
+                                    <p><strong>Created By:</strong> {selectedPermissionSetInfo.createdBy}</p>
+                                    <p><strong>Created Date:</strong>
+                                        <lightning-formatted-date-time day="numeric"
+                                                                       hour="2-digit" minute="2-digit" month="numeric"
+                                                                       time-zone-name="short" value={selectedPermissionSetInfo.createdDate}
+                                                                       year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><strong>Last Modified By:</strong> {selectedPermissionSetInfo.lastModifiedBy}</p>
+                                    <p><strong>Last Modified Date:</strong>
+                                        <lightning-formatted-date-time
+                                                day="numeric" hour="2-digit"
+                                                minute="2-digit" month="numeric" time-zone-name="short" value={selectedPermissionSetInfo.lastModifiedDate}
+                                                year="numeric"></lightning-formatted-date-time>
+                                    </p>
+                                    <p><a href={assignedUsersUrl} target="_blank">View Assignments</a></p>
+                                </div>
+                            </template>
+                            <template if:false={selectedPermissionSetInfo}>
+                                <div class="slds-p-around_medium">No Permission Set selected.</div>
+                            </template>
+                        </lightning-card>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2 ps-lab-choices-container">
+                        <lightning-input
+                                class="fileNameInput"
+                                label="File Name (Optional)"
+                                message-when-pattern-mismatch="File name can only contain letters, numbers, spaces, and underscores"
+                                onchange={handleFileNameChange}
+                                pattern="^[a-zA-Z0-9_ -]*$"
+                                value={permissionSetLabel}>
+                        </lightning-input>
+
+                        <div class="slds-m-top_medium">
+                            <lightning-button
+                                    disabled={isGenerating}
+                                    label="Generate CSV"
+                                    onclick={handleGenerateCSV}
+                                    variant="brand">
+                            </lightning-button>
+
+                            <template if:true={isGenerating}>
+                                <div class="slds-m-top_medium">
+                                    <lightning-progress-ring size="large"
+                                                             value={progressValue}></lightning-progress-ring>
+                                    <div class="slds-text-body_regular slds-m-top_small">Generating CSV...</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="slds-m-top_large slds-align_absolute-center">
+                <lightning-button
+                        disabled={isFirstStep}
+                        label="Previous"
+                        onclick={handlePrevious}>
+                </lightning-button>
+                <lightning-button
+                        class="slds-m-left_small"
+                        disabled={isDisabled}
+                        label="Next"
+                        onclick={handleNext}>
+                </lightning-button>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

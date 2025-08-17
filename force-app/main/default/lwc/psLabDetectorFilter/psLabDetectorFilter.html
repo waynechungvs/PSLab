@@ -1,0 +1,77 @@
+<template>
+  <div class="slds-box slds-theme_default">
+    <div>
+      <lightning-combobox
+        label="Permission Type"
+        name="Type"
+        onchange={handlePermissionTypeChange}
+        options={permissionTypeOptions}
+        required
+        value={selectedPermissionTypeOption}
+      ></lightning-combobox>
+
+      <div lwc:if={isPermissionTypeSelected}>
+        <c-ps-lab-multi-select-combo-box label={permissionsLabel}
+                                         lwc:if={usersAndPermissionsOptions}
+                                         name={label}
+                                         options={usersAndPermissionsOptions}
+                                         is-multi-select = {isMultiSelect}
+                                         required = {isRequired}
+                                         onchange={handlePermissionsAPINameChange}
+                                         value={permissionSetsOrPSGApiNames}></c-ps-lab-multi-select-combo-box>
+      </div>
+
+    </div>
+
+
+    <div>
+      <lightning-combobox label="Permission"
+                          lwc:if={selectedPermissionTypeOption}
+                          name="Type"
+                          onchange={handlePermissionOptionsChange}
+                          options={permissionOptions}
+                          required
+                          value={selectedPermissionToCheck}
+      >
+      </lightning-combobox>
+    </div>
+
+
+    <div lwc:if={showObjectSelectionForFLS}>
+      <c-ps-lab-detector-filter-item
+        onselectionchange={handleObjectSelectionForFLS}
+        filter-item-data={filterItemDataObjectForFLS}>
+      </c-ps-lab-detector-filter-item>
+    </div>
+
+
+    <div lwc:if={showFilterItemData}>
+      <c-ps-lab-detector-filter-item onselectionchange={handleMetadataSelectionChange} filter-item-data={filterItemData}></c-ps-lab-detector-filter-item>
+    </div>
+
+    <div lwc:if={filterSecurityPermissions}>
+      <c-ps-lab-detector-filter-item onselectionchange={handleMetadataPermissionsSelectionChange} filter-item-data={filterSecurityPermissions}></c-ps-lab-detector-filter-item>
+    </div>
+
+    <div lwc:if={selectedPermissionToCheck}>
+      <lightning-combobox label="Conditions"
+                          name="Conditions"
+                          options={filterOptions}
+                          onchange={handleFilterConditionChange}
+                          required
+                          value={selectedFilterConditionValue}
+      ></lightning-combobox>
+    </div>
+
+    <lightning-spinner lwc:if={showSpinner}></lightning-spinner>
+
+    <div class="slds-grid">
+      <div lwc:if={showDetectButton} class="slds-m-top_medium slds-col slds-align_absolute-center">
+        <lightning-button label="Detect" onclick={detectPermissions}></lightning-button>
+      </div>
+      <div  class="slds-m-top_medium slds-col slds-align_absolute-center">
+        <lightning-button label="Reset" onclick={resetFilterInputs} variant="destructive"></lightning-button>
+      </div>
+    </div>
+  </div>
+</template>
