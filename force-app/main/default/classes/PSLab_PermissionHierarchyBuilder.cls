@@ -1,26 +1,18 @@
 /**
  * @author       : Oumaima ARBANI
  * @date         : 16/8/2025
- * @description  : 
+ * @description  : Builds a permission hierarchy for a specific user based on their direct and group-based assignments.
  * @group        : PSLab
  **/
-public with sharing class PSLab_PermissionHierarchyBuilder{
-    public class HierarchyNode {
-        @AuraEnabled public String permissionSetId;
-        @AuraEnabled public String name;
-        @AuraEnabled public String label;
-        @AuraEnabled public String type;
-        @AuraEnabled public String description;
-        @AuraEnabled public String createdBy;
-        @AuraEnabled public String lastModifiedBy;
-        @AuraEnabled public String lastModifiedDate;
-        @AuraEnabled public String status;
-        @AuraEnabled public List<HierarchyNode> children = new List<HierarchyNode>();
-    }
-
+public without sharing class PSLab_PermissionHierarchyBuilder {
     private final List<PermissionSetAssignment> assignments;
     private final User assignee;
 
+    /**
+     * @description  : Constructor for the builder. Initializes with a user's assignments and sets the assignee.
+     * @author Oumaima Arbani | 2025-08-22
+     * @param assignments A list of PermissionSetAssignment records for a single user.
+     **/
     public PSLab_PermissionHierarchyBuilder(List<PermissionSetAssignment> assignments) {
         this.assignments = assignments;
         this.assignee = (assignments.isEmpty()) ? null : assignments[0].Assignee;
@@ -30,9 +22,9 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
      * @description Main method to construct the entire hierarchy.
      * @return The root node of the hierarchy.
      */
-    public HierarchyNode build() {
+    public PSLab_HierarchyNode build() {
         if (assignee == null) {
-            return new HierarchyNode();
+            return new PSLab_HierarchyNode();
         }
 
         Map<Id, PermissionSetAssignment> groupAssignments = new Map<Id, PermissionSetAssignment>();
@@ -45,7 +37,7 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
             }
         }
 
-        List<HierarchyNode> rootChildren = new List<HierarchyNode>();
+        List<PSLab_HierarchyNode> rootChildren = new List<PSLab_HierarchyNode>();
         if (!groupAssignments.isEmpty()) {
             rootChildren.add(buildGroupsBranch(groupAssignments));
         }
@@ -53,7 +45,7 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
             rootChildren.add(buildStandaloneBranch(standaloneAssignments));
         }
 
-        HierarchyNode rootNode = new HierarchyNode();
+        PSLab_HierarchyNode rootNode = new PSLab_HierarchyNode();
         rootNode.name = this.assignee.Name + '\n(' + this.assignee.Username + ')';
         rootNode.children = rootChildren;
 
@@ -62,17 +54,17 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
 
     /**
      * @description Builds the "Permission Set Groups" branch of the hierarchy.
-     * @param groupAssignments
-     * @return HierarchyNode
+     * @param groupAssignments the permissionsets and PSGs Assignments
+     * @return PSLab_HierarchyNode
      */
-    private HierarchyNode buildGroupsBranch(Map<Id, PermissionSetAssignment> groupAssignments) {
+    private PSLab_HierarchyNode buildGroupsBranch(Map<Id, PermissionSetAssignment> groupAssignments) {
         Map<Id, List<PermissionSet>> groupToPermissionSetsMap = getGroupToPermissionSetsMap(groupAssignments.keySet());
 
-        List<HierarchyNode> groupNodes = new List<HierarchyNode>();
+        List<PSLab_HierarchyNode> groupNodes = new List<PSLab_HierarchyNode>();
         for (Id groupId : groupAssignments.keySet()) {
             PermissionSetAssignment assignment = groupAssignments.get(groupId);
 
-            HierarchyNode groupNode = createNodeFromGroup(assignment.PermissionSetGroup);
+            PSLab_HierarchyNode groupNode = createNodeFromGroup(assignment.PermissionSetGroup);
 
             if (groupToPermissionSetsMap.containsKey(groupId)) {
                 for (PermissionSet ps : groupToPermissionSetsMap.get(groupId)) {
@@ -82,7 +74,7 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
             groupNodes.add(groupNode);
         }
 
-        HierarchyNode groupsBranch = new HierarchyNode();
+        PSLab_HierarchyNode groupsBranch = new PSLab_HierarchyNode();
         groupsBranch.name = 'Permission Set Groups';
         groupsBranch.children = groupNodes;
         return groupsBranch;
@@ -91,15 +83,15 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
     /**
      * @description Builds the "Standalone Permission Sets" branch of the hierarchy.
      * @param standaloneAssignments
-     * @return HierarchyNode
+     * @return PSLab_HierarchyNode
      */
-    private HierarchyNode buildStandaloneBranch(List<PermissionSetAssignment> standaloneAssignments) {
-        List<HierarchyNode> standaloneNodes = new List<HierarchyNode>();
+    private PSLab_HierarchyNode buildStandaloneBranch(List<PermissionSetAssignment> standaloneAssignments) {
+        List<PSLab_HierarchyNode> standaloneNodes = new List<PSLab_HierarchyNode>();
         for (PermissionSetAssignment assignment : standaloneAssignments) {
             standaloneNodes.add(createNodeFromPermissionSet(assignment.PermissionSet));
         }
 
-        HierarchyNode standaloneBranch = new HierarchyNode();
+        PSLab_HierarchyNode standaloneBranch = new PSLab_HierarchyNode();
         standaloneBranch.name = 'Standalone Permission Sets';
         standaloneBranch.children = standaloneNodes;
         return standaloneBranch;
@@ -114,14 +106,20 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
         Map<Id, List<PermissionSet>> groupToPermissionSetsMap = new Map<Id, List<PermissionSet>>();
 
         List<PermissionSetGroupComponent> components = [
-                SELECT PermissionSetGroupId,
-                        PermissionSet.Id, PermissionSet.Name, PermissionSet.Label, PermissionSet.Description,
-                        PermissionSet.CreatedBy.Name, PermissionSet.LastModifiedBy.Name, PermissionSet.LastModifiedDate
+                SELECT
+                        PermissionSetGroupId,
+                        PermissionSet.Id,
+                        PermissionSet.Name,
+                        PermissionSet.Label,
+                        PermissionSet.Description,
+                        PermissionSet.CreatedBy.Name,
+                        PermissionSet.LastModifiedBy.Name,
+                        PermissionSet.LastModifiedDate
                 FROM PermissionSetGroupComponent
                 WHERE PermissionSetGroupId IN :groupIds
         ];
 
-        for(PermissionSetGroupComponent comp : components) {
+        for (PermissionSetGroupComponent comp : components) {
             if (!groupToPermissionSetsMap.containsKey(comp.PermissionSetGroupId)) {
                 groupToPermissionSetsMap.put(comp.PermissionSetGroupId, new List<PermissionSet>());
             }
@@ -130,8 +128,14 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
         return groupToPermissionSetsMap;
     }
 
-    private HierarchyNode createNodeFromPermissionSet(PermissionSet ps) {
-        HierarchyNode node = new HierarchyNode();
+    /**
+     * @description  : Helper method to convert a PermissionSet SObject into a standardized PSLab_HierarchyNode.
+     * @author Oumaima Arbani | 2025-08-22
+     * @param ps The PermissionSet record to convert.
+     * @return A populated PSLab_HierarchyNode.
+     **/
+    private PSLab_HierarchyNode createNodeFromPermissionSet(PermissionSet ps) {
+        PSLab_HierarchyNode node = new PSLab_HierarchyNode();
         node.permissionSetId = ps.Id;
         node.name = ps.Name;
         node.label = ps.Label;
@@ -142,8 +146,14 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
         return node;
     }
 
-    private HierarchyNode createNodeFromGroup(PermissionSetGroup psg) {
-        HierarchyNode node = new HierarchyNode();
+    /**
+     * @description  : Helper method to convert a PermissionSetGroup SObject into a standardized PSLab_HierarchyNode.
+     * @author Oumaima Arbani | 2025-08-22
+     * @param psg The PermissionSetGroup record to convert.
+     * @return A populated PSLab_HierarchyNode.
+     **/
+    private PSLab_HierarchyNode createNodeFromGroup(PermissionSetGroup psg) {
+        PSLab_HierarchyNode node = new PSLab_HierarchyNode();
         node.permissionSetId = psg.Id;
         node.name = psg.DeveloperName;
         node.label = psg.MasterLabel;
@@ -154,5 +164,4 @@ public with sharing class PSLab_PermissionHierarchyBuilder{
         node.status = psg.Status;
         return node;
     }
-
 }

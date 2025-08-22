@@ -12,7 +12,7 @@ public with sharing class PSLab_PermissionAnalysisController{
     }
 
     @AuraEnabled(Cacheable = true)
-    public static PSLab_AllPermissionsHierarchyBuilder.HierarchyNode getPermissionSetHierarchy() {
+    public static PSLab_HierarchyNode getPermissionSetHierarchy() {
         return PSLab_PermissionAnalysisHelper.getPermissionSetHierarchy();
     }
 
@@ -22,12 +22,12 @@ public with sharing class PSLab_PermissionAnalysisController{
     }
 
     @AuraEnabled(Cacheable=true)
-    public static PSLab_PermissionHierarchyBuilder.HierarchyNode getPermissionSetHierarchyByUserId(String userId){
+    public static PSLab_HierarchyNode getPermissionSetHierarchyByUserId(String userId){
         return PSLab_PermissionAnalysisHelper.getPermissionSetHierarchyByUserId(userId);
     }
 
     @AuraEnabled
     public static List<PSLab_DetectedPermission> getDetectedPermissions(Map<String, Object> payload) {
-        return PSLab_PermissionAnalysisHelper.getDetectedPermissions(payload);
+       return PSLab_PermissionAnalysisHelper.getDetectedPermissions(payload);
     }
 }

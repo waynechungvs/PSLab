@@ -104,17 +104,26 @@
 }
 
 .scroll-top-button-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 99;
-    cursor: pointer;
-    padding: 15px;
+    position: sticky;
+    bottom: 5rem;
+    float: right;
+    margin-right: 1rem;
+    z-index: 10;
 }
 
-.scroll-top-button {
+.scroll-top-button-container lightning-button-icon {
     --slds-c-button-radius-border: 50%;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+    --slds-c-button-color-background: #9bb1f5
+
 }
+
+.scroll-top-button-container lightning-button-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
 
 .tooltip-container {
     position: absolute;

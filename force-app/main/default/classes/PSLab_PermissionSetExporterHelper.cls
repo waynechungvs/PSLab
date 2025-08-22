@@ -1,8 +1,11 @@
 /**
- * Created by oarbani on 27/4/2025.
- */
+ * @author       : Oumaima Arbani
+ * @date         : 27-04-2025
+ * @description  :
+ * @group        : PSLab
+ **/
 
-public with sharing class PSLab_PermissionSetExporterHelper{
+public without sharing class PSLab_PermissionSetExporterHelper{
 
 
     public static List<PermissionSetInfo> getPermissionSets(){
@@ -160,7 +163,8 @@ public with sharing class PSLab_PermissionSetExporterHelper{
             for (FlowDefinitionView flow : [
                     SELECT ApiName
                     FROM FlowDefinitionView
-                    WHERE Id IN :flowIds WITH SYSTEM_MODE
+                    WHERE DurableId IN :flowIds AND ManageableState = 'unmanaged'
+                    WITH SYSTEM_MODE
                     ORDER BY Label ASC
             ]) {
                 rows.add('Flow,' + flow.ApiName + ',');
@@ -173,13 +177,16 @@ public with sharing class PSLab_PermissionSetExporterHelper{
         public List<String> getCsvRows(Id permissionSetId) {
             List<String> rows = new List<String>();
             Set<Id> entityIds = getEntityIdsByPermissionSetId(permissionSetId, 'CustomEntityDefinition');
-
             if (entityIds.isEmpty()) return rows;
+
+            System.debug([SELECT DeveloperName
+            FROM EntityDefinition
+            WHERE DurableId IN :entityIds AND QualifiedApiName LIKE '%__mdt']);
 
             for (EntityDefinition customMetadataType : [
                     SELECT DeveloperName
                     FROM EntityDefinition
-                    WHERE Id IN :entityIds AND QualifiedApiName LIKE '%__mdt' WITH SYSTEM_MODE
+                    WHERE DurableId IN :entityIds AND QualifiedApiName LIKE '%__mdt' WITH SYSTEM_MODE
             ]) {
                 rows.add('Custom Metadata Type,' + customMetadataType.DeveloperName + ',');
             }
@@ -197,7 +204,7 @@ public with sharing class PSLab_PermissionSetExporterHelper{
             for (EntityDefinition customSetting : [
                     SELECT DeveloperName
                     FROM EntityDefinition
-                    WHERE Id IN :entityIds AND IsCustomSetting = TRUE WITH SYSTEM_MODE
+                    WHERE DurableId IN :entityIds AND IsCustomSetting = TRUE WITH SYSTEM_MODE
             ]) {
                 rows.add('Custom Setting,' + customSetting.DeveloperName + ',');
             }

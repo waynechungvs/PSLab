@@ -75,6 +75,10 @@ export default class PsLabDetectorFilter extends LightningElement {
     return this.selectedPermissionToCheck === "FieldPermissions";
   }
 
+  get noFieldsAvailable() {
+    return this.filterItemData && Array.isArray(this.filterItemData.options) && this.filterItemData.options.length === 0;
+  }
+
   get filterSecurityPermissions() {
     if (
       Array.isArray(this.selectedMetadataOptions) &&
@@ -90,11 +94,11 @@ export default class PsLabDetectorFilter extends LightningElement {
         isStandardCombobox: false,
         isCustomCombobox: false,
         isCheckboxGroup: true,
-        options: this.securityOptions
+        options: this.securityOptions,
+        disabled: this.noFieldsAvailable
       };
-    } else {
-      return {};
     }
+    return {};
   }
 
   get securityOptions() {
@@ -180,26 +184,28 @@ export default class PsLabDetectorFilter extends LightningElement {
     return "";
   }
 
-  get showDetectButton() {
+  get disableDetectButton() {
     if (
       !this.selectedPermissionTypeOption ||
       this.selectedMetadataOptions.length === 0 ||
       !this.selectedFilterConditionValue
     ) {
-      return false;
+      return true;
     }
 
     switch (this.selectedPermissionToCheck) {
       case "ObjectPermissions":
-        return this.selectedSecurityOptions.length > 0;
+        return this.selectedSecurityOptions.length === 0;
       case "FieldPermissions":
         return (
-          this.selectedSecurityOptions.length > 0 && this.selectedObjectForFLS
+            this.selectedSecurityOptions.length === 0 || !this.selectedObjectForFLS
         );
       default:
-        return true;
+        return false;
     }
   }
+
+
 
   connectedCallback() {
     this.selectedFilterConditionValue = this.filterOptions[0]?.value || "";
@@ -208,6 +214,8 @@ export default class PsLabDetectorFilter extends LightningElement {
   handlePermissionTypeChange(event) {
     this.permissionSetsOrPSGApiNames = "";
     this.selectedPermissionTypeOption = event.detail.value;
+    const clearContextEvent = new CustomEvent("clearcontext");
+    this.dispatchEvent(clearContextEvent);
     this.getPermissionsOrUsersList();
   }
 
@@ -219,6 +227,9 @@ export default class PsLabDetectorFilter extends LightningElement {
       this.selectedPermissionToCheckPreviousState = "FieldPermissions";
       this.selectedPermissionToCheck = "ObjectPermissions";
     }
+
+    this.template.querySelectorAll('c-ps-lab-detector-filter-item')
+        .forEach(child => child.resetInternalSelection());
 
     this.getOptionsBySelectedPermission();
 
@@ -246,7 +257,7 @@ export default class PsLabDetectorFilter extends LightningElement {
 
   handleMetadataSelectionChange(event) {
     this.selectedMetadataOptions = event.detail.values || [];
-    this.selectedSecurityOptions = [];
+    //this.selectedSecurityOptions = [];
   }
 
   handleMetadataPermissionsSelectionChange(event) {
@@ -260,6 +271,9 @@ export default class PsLabDetectorFilter extends LightningElement {
       this.permissionSetsOrPSGApiNames
     ) {
       this.getPermissionSetHierarchyByUserId();
+    } else {
+      const clearContextEvent = new CustomEvent("clearcontext");
+      this.dispatchEvent(clearContextEvent);
     }
   }
 
@@ -401,19 +415,24 @@ export default class PsLabDetectorFilter extends LightningElement {
   }
 
   resetFilterInputs() {
-    const resetEvent = new CustomEvent("filterreset", {});
-    this.dispatchEvent(resetEvent);
+    this.dispatchEvent(new CustomEvent("filterreset"));
+
+    // Reset all selected values
     this.selectedPermissionTypeOption = null;
     this.selectedPermissionToCheck = null;
-    this.selectedPermissionToCheckPreviousState = null;
-    this.selectedObjectForFLS = "";
+    this.selectedObjectForFLS = '';
+    this.permissionSetsOrPSGApiNames = null;
     this.selectedMetadataOptions = [];
     this.selectedSecurityOptions = [];
-    this.selectedFilterConditionValue = this.filterOptions[0]?.value || "";
-    this.permissionSetsOrPSGApiNames = null;
-    this._objectOptionsForFLS = [];
-    this.filterItemData = {};
+    this.selectedFilterConditionValue = this.filterOptions[0]?.value || '';
 
+    // Reset the data sources for all child components
+    this.usersAndPermissionsOptions = [];
+    this.filterItemData = {};
+    this._objectOptionsForFLS = [];
+
+    this.template.querySelectorAll('c-ps-lab-detector-filter-item')
+        .forEach(child => child.resetInternalSelection());
   }
 
   showToast(title, message, variant = "info") {

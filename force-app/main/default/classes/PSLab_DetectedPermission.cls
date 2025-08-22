@@ -1,3 +1,9 @@
+/**
+ * @author       : Oumaima Arbani
+ * @date         : 08-17-2025
+ * @description  : A data model class that holds the detailed results of a permission analysis, designed to be passed from Apex to LWC.
+ * @group        : PSLab
+ **/
 public class PSLab_DetectedPermission {
 
     @AuraEnabled public String permissionType { get; set; }

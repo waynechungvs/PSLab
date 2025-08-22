@@ -1,63 +1,68 @@
 <template>
-  <div class="multi-select" onclick={stopPropagation}>
-    <label class="slds-form-element__label">
-      <abbr if:true={required} class="slds-required" title="required">*</abbr>
-      {label}
-      <lightning-spinner
-        lwc:if={showSpinner}
-        alternative-text="Loading"
-        size="xx-small"
-        class="slds-m-left_x-small slds-spinner_inline"
-      ></lightning-spinner>
-    </label>
+    <div class="multi-select" onclick={stopPropagation}>
+        <label class="slds-form-element__label">
+            <abbr class="slds-required" if:true={required} title="required">*</abbr>
+            {label}
+            <lightning-spinner
+                    alternative-text="Loading"
+                    class="slds-m-left_x-small slds-spinner_inline"
+                    lwc:if={showSpinner}
+                    size="xx-small"
+            ></lightning-spinner>
+        </label>
 
-    <!-- Pills only in multi-select mode -->
-    <template if:true={isMultiSelect}>
-      <div class="selected-items">
-        <template for:each={selectedOptions} for:item="option">
-          <span key={option.value} class="pill">
+        <!-- Pills only in multi-select mode -->
+        <template if:true={isMultiSelect}>
+            <div class="selected-items">
+                <template for:each={selectedOptions} for:item="option">
+          <span class="pill" key={option.value}>
             {option.label}
-            <button class="remove" onclick={handleRemove} data-value={option.value}>×</button>
+            <button class="remove" data-value={option.value} onclick={handleRemove}>×</button>
           </span>
+                </template>
+            </div>
         </template>
-      </div>
-    </template>
 
-    <div class="combo-input-container">
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search and select"
-        value={computedInputValue}
-        oninput={handleInput}
-        onclick={openDropdown}
-        aria-labelledby={label}
-      />
+        <template lwc:if={hasOptions}>
+            <div class="combo-input-container">
+                <input
+                        class="search-input"
+                        data-id="search-input"
+                        onclick={openDropdown}
+                        oninput={handleInput}
+                        placeholder="Search and select"
+                        type="text"
+                        value={computedInputValue}
+                />
 
-      <lightning-icon
-        class="dropdown-icon"
-        icon-name="utility:down"
-        size="x-small"
-        onclick={toggleDropdown}
-      ></lightning-icon>
+                <lightning-icon
+                        class="dropdown-icon"
+                        icon-name="utility:down"
+                        onclick={toggleDropdown}
+                        size="x-small"
+                ></lightning-icon>
+            </div>
+
+            <ul lwc:if={showDropdown} class="dropdown">
+                <template for:each={filteredOptions} for:item="option">
+                    <li
+                            class="dropdown-item"
+                            data-label={option.label}
+                            data-value={option.value}
+                            key={option.uniqueKey}
+                            onclick={handleSelect}
+                    >
+                        {option.label}
+                    </li>
+                </template>
+            </ul>
+        </template>
+
+
+        <template if:false={hasOptions}>
+            <div class="slds-box slds-box_x-small slds-theme_shade">
+                <p class="slds-text-color_weak">No fields are available.</p>
+            </div>
+        </template>
     </div>
-
-    <template if:true={showDropdown}>
-      <ul class="dropdown">
-        <template for:each={filteredOptions} for:item="option">
-          <li
-            key={option.value}
-            class="dropdown-item"
-            onclick={handleSelect}
-            data-value={option.value}
-          >
-            {option.label}
-          </li>
-        </template>
-        <template if:true={noOptions}>
-          <li class="dropdown-item disabled">No options found</li>
-        </template>
-      </ul>
-    </template>
-  </div>
 </template>

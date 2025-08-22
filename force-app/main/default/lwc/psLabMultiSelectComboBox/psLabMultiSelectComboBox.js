@@ -4,7 +4,7 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
   _options = [];
 
   @track selectedValues = [];
-  searchTerm = '';
+  @track searchTerm = '';
   showDropdown = false;
 
   @api label = '';
@@ -19,7 +19,16 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
 
   @api
   set options(options) {
-    this._options = options;
+    if (options) {
+      this._options = options.map((opt, index) => {
+        return {
+          ...opt,
+          uniqueKey: `${opt.value}-${index}`
+        };
+      });
+    } else {
+      this._options = [];
+    }
   }
 
   @api
@@ -28,7 +37,6 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
   }
 
   set value(val) {
-    console.log(val);
     if (Array.isArray(val)) {
       this.selectedValues = val;
     } else if (val) {
@@ -36,6 +44,15 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
     } else {
       this.selectedValues = [];
     }
+
+    if (!this.isMultiSelect) {
+      const selected = this.selectedOptions[0];
+      this.searchTerm = selected ? selected.label : '';
+    }
+  }
+
+  get hasOptions() {
+    return this.options && this.options.length > 0;
   }
 
   connectedCallback() {
@@ -55,10 +72,16 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
   }
 
   get selectedOptions() {
+    if (!this.options) {
+      return [];
+    }
     return this.options.filter(opt => this.selectedValues.includes(opt.value));
   }
 
   get filteredOptions() {
+    if (!this.options) {
+      return [];
+    }
     const lower = this.searchTerm.toLowerCase();
     return this.options.filter(
       opt =>
@@ -68,14 +91,7 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
   }
 
   get computedInputValue() {
-    if (this.isMultiSelect) {
-      return this.searchTerm;
-    }
-    if (this.searchTerm) {
-      return this.searchTerm;
-    }
-    const selected = this.selectedOptions[0];
-    return selected ? selected.label : '';
+    return this.searchTerm;
   }
 
   get noOptions() {
@@ -97,20 +113,30 @@ export default class PsLabMultiSelectComboBox extends LightningElement {
 
   handleSelect(event) {
     const value = event.currentTarget.dataset.value;
+    const selected = this.options.find(opt => opt.value === value);
 
     if (this.isMultiSelect) {
       if (!this.selectedValues.includes(value)) {
         this.selectedValues = [...this.selectedValues, value];
+        this.searchTerm = '';
       }
     } else {
       this.selectedValues = [value];
+      this.searchTerm = event.currentTarget.dataset.label
     }
 
     this.dispatchEvent(new CustomEvent('change', {
       detail: { values: this.selectedValues }
     }));
 
-    this.searchTerm = '';
+    if (!this.isMultiSelect && selected) {
+      this.searchTerm = selected.label;
+    } else {
+      this.searchTerm = '';
+    }
+
+
+
     this.showDropdown = false;
   }
 

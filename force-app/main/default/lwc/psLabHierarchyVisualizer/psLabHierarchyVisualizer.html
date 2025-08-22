@@ -5,7 +5,7 @@
             <div class="settings-container">
                 <div class={settingsSectionClass}>
                     <div class="settings-area">
-                        <c-ps-lab-detector-filter ondetection={handleDetection} onfilterreset={handleFilterReset}></c-ps-lab-detector-filter>
+                        <c-ps-lab-detector-filter ondetection={handleDetection} onfilterreset={handleFilterReset} onclearcontext={handleClearContext}></c-ps-lab-detector-filter>
                     </div>
                 </div>
 
@@ -33,12 +33,12 @@
                     <div class="d3-tooltip tooltip-container"></div>
                     <div if:true={showScrollButton} class="scroll-top-button-container">
                         <lightning-button-icon
-                                class="scroll-top-button"
+                                class="slds-button_brand"
                                 alternative-text="Scroll to Top"
-                                icon-name="utility:arrowup"
+                                icon-name="utility:chevronup"
                                 onclick={handleScrollToTop}
                                 title="Scroll to Top"
-                                variant="border-filled">
+                                variant="brand">
                         </lightning-button-icon>
                     </div>
 

@@ -44,7 +44,7 @@ const FILTER_OPTIONS = [
 
 const PSG_INPUT_LABEL = "Permission Set Group API Names";
 const PS_INPUT_LABEL = "Permission Sets API Names";
-const USER_INPUT_LABEL = "Users";
+const USER_INPUT_LABEL = "Targeted User";
 
 export const permissionDetectorFilterSettings = {
   permissionTypeOptions: PERMISSIONSET_TYPE_OPTIONS,

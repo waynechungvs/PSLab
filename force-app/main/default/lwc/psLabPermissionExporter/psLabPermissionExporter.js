@@ -50,13 +50,12 @@ export default class PSLabPermissionExporter extends LightningElement {
 
   get permissionSetUrl() {
     return this.selectedPermissionSet
-      ? `/${this.selectedPermissionSet}`
+      ? `/lightning/setup/PermSets/page?address=%2F${this.selectedPermissionSet}`
       : '#';
   }
 
   get assignedUsersUrl() {
     return this.permissionSetOptions.find(p => p.value === this.selectedPermissionSet.toString())?.assignedUsersURL;
-
   }
 
 
@@ -82,27 +81,36 @@ export default class PSLabPermissionExporter extends LightningElement {
 
 
   handlePermissionSelection(event) {
-    this.selectedPermissions = event.detail.value;
+    const newlySelectedValues = event.detail.value;
+    const allOptionValue = 'All';
+
+    const allPermissionValues = this.permissionOptions
+        .map(option => option.value)
+        .filter(value => value !== allOptionValue);
+
+    const allWasPreviouslySelected = this.selectedPermissions?.includes(allOptionValue);
+    const allIsNowSelected = newlySelectedValues.includes(allOptionValue);
+
+    if (allIsNowSelected && !allWasPreviouslySelected) {
+      this.selectedPermissions = [allOptionValue, ...allPermissionValues];
+
+    } else if (!allIsNowSelected && allWasPreviouslySelected) {
+      this.selectedPermissions = [];
+
+    } else if (newlySelectedValues.length === allPermissionValues.length && !allWasPreviouslySelected) {
+      this.selectedPermissions = [allOptionValue, ...allPermissionValues];
+
+    } else {
+      if (allWasPreviouslySelected) {
+        this.selectedPermissions = newlySelectedValues.filter(value => value !== allOptionValue);
+      } else {
+        this.selectedPermissions = newlySelectedValues;
+      }
+    }
   }
   handlePermissionSetChange(event) {
-    let values = [...event.detail.values];
-    const allOption = "All";
-    const allValues = this.permissionOptions.map(opt => opt.value);
-
-    if (values.includes(allOption)) {
-      if (
-        !this.selectedPermissionSet.includes(allOption) ||
-        values.length < allValues.length
-      ) {
-        this.selectedPermissionSet = allValues;
-        values = allValues.filter(v => v !== allOption);
-      } else {
-        this.selectedPermissionSet = [];
-        values = [];
-      }
-    } else {
-      this.selectedPermissionSet = values;
-    }
+    const values = event.detail.values || [];
+    this.selectedPermissionSet = values;
 
     if (values.length === 1) {
       const selected = this.permissionSetOptions.find(p => p.value === values[0]);
@@ -117,8 +125,6 @@ export default class PSLabPermissionExporter extends LightningElement {
           includedIn: selected.includedIn?.toString() || "N/A",
           type: selected.type || "N/A"
         };
-      } else {
-        this.selectedPermissionSetInfo = null;
       }
     } else {
       this.selectedPermissionSetInfo = null;

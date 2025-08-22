@@ -2,128 +2,111 @@
  * @author       : Oumaima ARBANI
  * @date         : 16/8/2025
  * @description  : 
- * @group        : NovAi
+ * @group        : PSLab
  **/
-public with sharing class PSLab_AllPermissionsHierarchyBuilder{
-    public class HierarchyNode {
-        @AuraEnabled public String permissionSetId;
-        @AuraEnabled public String name;
-        @AuraEnabled public String label;
-        @AuraEnabled public String type;
-        @AuraEnabled public String description;
-        @AuraEnabled public String createdBy;
-        @AuraEnabled public String lastModifiedBy;
-        @AuraEnabled public String lastModifiedDate;
-        @AuraEnabled public String status; // For Permission Set Groups
-        @AuraEnabled public List<HierarchyNode> children = new List<HierarchyNode>();
-    }
-
+public without sharing class PSLab_AllPermissionsHierarchyBuilder{
     private Map<Id, List<PermissionSet>> groupToChildren;
     private Set<Id> groupedPermissionSetIds;
 
-    public HierarchyNode build() {
+    public PSLab_HierarchyNode build(){
         this.initializeGroupData();
+        PSLab_HierarchyNode groupsBranch = this.buildGroupsBranch();
+        PSLab_HierarchyNode standaloneSetsBranch = this.buildStandaloneSetsBranch();
 
-        // Build the two main branches of the hierarchy
-        HierarchyNode groupsBranch = this.buildGroupsBranch();
-        HierarchyNode standaloneSetsBranch = this.buildStandaloneSetsBranch();
-
-        HierarchyNode rootNode = new HierarchyNode();
+        PSLab_HierarchyNode rootNode = new PSLab_HierarchyNode();
         rootNode.name = UserInfo.getOrganizationName();
         rootNode.type = 'parentNode';
-        if (groupsBranch != null) {
+        if(groupsBranch != null){
             rootNode.children.add(groupsBranch);
         }
-        if (standaloneSetsBranch != null) {
+        if(standaloneSetsBranch != null){
             rootNode.children.add(standaloneSetsBranch);
         }
 
         return rootNode;
     }
 
-    private void initializeGroupData() {
+    private void initializeGroupData(){
         this.groupToChildren = new Map<Id, List<PermissionSet>>();
         this.groupedPermissionSetIds = new Set<Id>();
 
-        for (PermissionSetGroupComponent permissionSetGroupComponent : [
-                SELECT PermissionSetGroupId,
-                        PermissionSet.Id, PermissionSet.Name, PermissionSet.Description,
-                        PermissionSet.CreatedBy.Name, PermissionSet.LastModifiedBy.Name,
-                        PermissionSet.LastModifiedDate
+        for(PermissionSetGroupComponent permissionSetGroupComponent : [
+                SELECT PermissionSetGroupId, PermissionSet.Id, PermissionSet.Name, PermissionSet.Label, PermissionSet.Description, PermissionSet.CreatedBy.Name, PermissionSet.LastModifiedBy.Name, PermissionSet.LastModifiedDate
                 FROM PermissionSetGroupComponent
+                WHERE PermissionSet.Id != NULL
                 WITH SYSTEM_MODE
-                ORDER BY PermissionSet.Name
+
         ]) {
             this.groupedPermissionSetIds.add(permissionSetGroupComponent.PermissionSetId);
-            if (!this.groupToChildren.containsKey(permissionSetGroupComponent.PermissionSetGroupId)) {
+            if(!this.groupToChildren.containsKey(permissionSetGroupComponent.PermissionSetGroupId)){
                 this.groupToChildren.put(permissionSetGroupComponent.PermissionSetGroupId, new List<PermissionSet>());
             }
             this.groupToChildren.get(permissionSetGroupComponent.PermissionSetGroupId).add(permissionSetGroupComponent.PermissionSet);
         }
     }
 
-    private HierarchyNode buildGroupsBranch() {
+    private PSLab_HierarchyNode buildGroupsBranch(){
         List<PermissionSetGroup> allGroups = [
-                SELECT Id, MasterLabel, DeveloperName, Description, Status,
-                        CreatedBy.Name, LastModifiedBy.Name, LastModifiedDate
+                SELECT Id, MasterLabel, DeveloperName, Description, Status, CreatedBy.Name, LastModifiedBy.Name, LastModifiedDate
                 FROM PermissionSetGroup
                 WITH SYSTEM_MODE
                 ORDER BY DeveloperName
         ];
 
-        if (allGroups.isEmpty()) {
+        if(allGroups.isEmpty()){
             return null;
         }
 
-        List<HierarchyNode> groupNodes = new List<HierarchyNode>();
-        for (PermissionSetGroup permissionSetGroup : allGroups) {
-            HierarchyNode groupNode = createNodeFromGroup(permissionSetGroup);
-            if (this.groupToChildren.containsKey(permissionSetGroup.Id)) {
-                for (PermissionSet permissionSet : this.groupToChildren.get(permissionSetGroup.Id)) {
+        List<PSLab_HierarchyNode> groupNodes = new List<PSLab_HierarchyNode>();
+        for(PermissionSetGroup permissionSetGroup : allGroups) {
+            PSLab_HierarchyNode groupNode = createNodeFromGroup(permissionSetGroup);
+            if(this.groupToChildren.containsKey(permissionSetGroup.Id)){
+                for(PermissionSet permissionSet : this.groupToChildren.get(permissionSetGroup.Id)) {
                     groupNode.children.add(createNodeFromPermissionSet(permissionSet));
                 }
             }
             groupNodes.add(groupNode);
         }
 
-        HierarchyNode groupsBranch = new HierarchyNode();
+        PSLab_HierarchyNode groupsBranch = new PSLab_HierarchyNode();
         groupsBranch.name = 'Permission Set Groups';
         groupsBranch.type = 'PSG';
         groupsBranch.children = groupNodes;
         return groupsBranch;
     }
 
-    private HierarchyNode buildStandaloneSetsBranch() {
+    private PSLab_HierarchyNode buildStandaloneSetsBranch(){
         List<PermissionSet> standaloneSets = [
-                SELECT Id, Name, Description, CreatedBy.Name,
-                        LastModifiedBy.Name, LastModifiedDate
+                SELECT Id, Name, Label, Description, CreatedBy.Name, LastModifiedBy.Name, LastModifiedDate
                 FROM PermissionSet
                 WHERE Id NOT IN :this.groupedPermissionSetIds
                         AND IsOwnedByProfile = FALSE
+                        AND Type != 'Group'
                 WITH SYSTEM_MODE
                 ORDER BY Name
         ];
 
-        if (standaloneSets.isEmpty()) {
+        if(standaloneSets.isEmpty()){
             return null;
         }
 
-        List<HierarchyNode> standaloneSetNodes = new List<HierarchyNode>();
-        for (PermissionSet permissionSet : standaloneSets) {
+        List<PSLab_HierarchyNode> standaloneSetNodes = new List<PSLab_HierarchyNode>();
+        for(PermissionSet permissionSet : standaloneSets) {
             standaloneSetNodes.add(createNodeFromPermissionSet(permissionSet));
         }
 
-        HierarchyNode standaloneBranch = new HierarchyNode();
+        PSLab_HierarchyNode standaloneBranch = new PSLab_HierarchyNode();
         standaloneBranch.name = 'Standalone Permission Sets';
         standaloneBranch.type = 'PS';
         standaloneBranch.children = standaloneSetNodes;
         return standaloneBranch;
     }
 
-    private HierarchyNode createNodeFromPermissionSet(PermissionSet permissionSet) {
-        HierarchyNode node = new HierarchyNode();
+    private PSLab_HierarchyNode createNodeFromPermissionSet(PermissionSet permissionSet){
+        PSLab_HierarchyNode node = new PSLab_HierarchyNode();
         node.permissionSetId = permissionSet.Id;
         node.name = permissionSet.Name;
+        node.label = permissionSet.Label;
         node.description = permissionSet.Description;
         node.createdBy = permissionSet.CreatedBy?.Name;
         node.lastModifiedBy = permissionSet.LastModifiedBy?.Name;
@@ -131,8 +114,8 @@ public with sharing class PSLab_AllPermissionsHierarchyBuilder{
         return node;
     }
 
-    private HierarchyNode createNodeFromGroup(PermissionSetGroup permissionSetGroup) {
-        HierarchyNode node = new HierarchyNode();
+    private PSLab_HierarchyNode createNodeFromGroup(PermissionSetGroup permissionSetGroup){
+        PSLab_HierarchyNode node = new PSLab_HierarchyNode();
         node.permissionSetId = permissionSetGroup.Id;
         node.label = permissionSetGroup.MasterLabel;
         node.name = permissionSetGroup.DeveloperName;
@@ -143,5 +126,5 @@ public with sharing class PSLab_AllPermissionsHierarchyBuilder{
         node.lastModifiedDate = permissionSetGroup.LastModifiedDate?.formatGmt('yyyy-MM-dd');
         return node;
     }
-    
+
 }

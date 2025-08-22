@@ -22,57 +22,58 @@ export class PermissionHierarchyFilter {
         filteredRoot.children = [];
         const originalRootChildren = hierarchyData.children || [];
 
-        originalRootChildren.forEach(branch => {
-            const originalBranchCopy = deepClone(branch);
-            if (branch.name === 'Permission Set Groups') {
-                const filteredBranch = this._filterGroupsBranch(originalBranchCopy, detectedPermissions, payload, highlightedIds);
-                if (filteredBranch) {
-                    filteredRoot.children.push(filteredBranch);
-                }
-            } else if (branch.name === 'Standalone Permission Sets') {
-                const filteredBranch = this._filterStandaloneBranch(originalBranchCopy, detectedPermissions, payload, highlightedIds);
-                if (filteredBranch) {
-                    filteredRoot.children.push(filteredBranch);
+        const groupsBranch = originalRootChildren.find(b => b.name === 'Permission Set Groups');
+        const standaloneBranch = originalRootChildren.find(b => b.name === 'Standalone Permission Sets');
+
+        const filterType = payload?.permissionType;
+
+        if (filterType === 'PSG') {
+            if (groupsBranch) {
+                const filtered = this._filterGroupsBranch(deepClone(groupsBranch), detectedPermissions, payload, highlightedIds);
+                if (filtered) {
+                    filteredRoot.children.push(filtered);
                 }
             }
-        });
+        }
+        else {
+            if (groupsBranch) {
+                const filtered = this._filterGroupsBranch(deepClone(groupsBranch), detectedPermissions, payload, highlightedIds);
+                if (filtered) {
+                    filteredRoot.children.push(filtered);
+                }
+            }
+            if (standaloneBranch) {
+                const filtered = this._filterStandaloneBranch(deepClone(standaloneBranch), detectedPermissions, payload, highlightedIds);
+                if (filtered) {
+                    filteredRoot.children.push(filtered);
+                }
+            }
+        }
 
         return (filteredRoot.children.length > 0) ? filteredRoot : null;
     }
 
     _filterGroupsBranch(branch, detectedPermissions, payload, highlightedIds) {
         const originalGroups = branch.children || [];
+        let groupsToCheck = originalGroups;
+        const allDetectedIds = this.collectIds(detectedPermissions);
+
+        if (payload?.permissionType === 'PSG' && payload.permissionsAPINames) {
+            const targetGroupNames = payload.permissionsAPINames.split(',').map(name => name.trim());
+            groupsToCheck = originalGroups.filter(g => targetGroupNames.includes(g.name));
+        }
+
         const filteredGroups = [];
-        const allDetectedPsIds = this.collectIds(detectedPermissions);
-        for (const group of originalGroups) {
-            let groupToAdd;
-            // Case 1: User searched for a specific PSG by name.
-            if (payload?.permissionType === 'PSG' && payload.permissionsAPINames) {
-                if (group.name === payload.permissionsAPINames) {
-                    groupToAdd = group; // This is our target group
-                } else {
-                    continue; // Skip all other groups
-                }
-            }
-            // Case 2: Broad PSG search OR any other search type that might involve groups
-            else {
-                groupToAdd = group; // Consider every group
-            }
+        for (const group of groupsToCheck) {
+            const matchingPsChildren = (group.children || []).filter(ps => allDetectedIds.has(ps.permissionSetId));
 
-            const matchingPsChildren = [];
-            for (const ps of (groupToAdd.children || [])) {
-                if (allDetectedPsIds.has(ps.permissionSetId)) {
-                    matchingPsChildren.push(deepClone(ps));
-                    highlightedIds.add(ps.permissionSetId);
-                }
-            }
-
-            // If the group contains any matching children after all filters, add it to the results.
             if (matchingPsChildren.length > 0) {
-                const filteredGroup = deepClone(groupToAdd);
-                filteredGroup.children = matchingPsChildren;
+                const filteredGroup = deepClone(group);
+                filteredGroup.children = deepClone(matchingPsChildren);
                 filteredGroups.push(filteredGroup);
-                highlightedIds.add(groupToAdd.permissionSetId);
+
+                highlightedIds.add(group.permissionSetId);
+                matchingPsChildren.forEach(ps => highlightedIds.add(ps.permissionSetId));
             }
         }
 
@@ -85,41 +86,29 @@ export class PermissionHierarchyFilter {
 
     _filterStandaloneBranch(branch, detectedPermissions, payload, highlightedIds) {
         const originalStandaloneSets = branch.children || [];
-        const filteredStandaloneSets = [];
-        const allDetectedIds = this.collectIds(detectedPermissions);
+        let setsToCheck = originalStandaloneSets;
+
         if (payload?.permissionType === 'PS' && payload.permissionsAPINames) {
-            const targetPsName = payload.permissionsAPINames;
-
-            const targetPsInHierarchy = originalStandaloneSets.find(ps => ps.name === targetPsName);
-
-            if (targetPsInHierarchy) {
-                const detectedInfo = detectedPermissions.find(p => p.permissionSetId === targetPsInHierarchy.permissionSetId);
-
-                if (detectedInfo && (!detectedInfo.includedIn || detectedInfo.includedIn.length === 0)) {
-                    filteredStandaloneSets.push(deepClone(targetPsInHierarchy));
-                    highlightedIds.add(targetPsInHierarchy.permissionSetId);
-                }
-            }
-        }else if (!payload || (payload?.permissionType === 'PS' && !payload.permissionsAPINames) || (payload?.permissionType !== 'PS' && payload?.permissionType !== 'PSG')){
-            for (const ps of originalStandaloneSets) {
-                if (allDetectedIds.has(ps.permissionSetId)) {
-                    const detectedInfo = this.findDetectedInfo(detectedPermissions, ps.permissionSetId);
-
-                    if (detectedInfo && (!detectedInfo?.includedIn || detectedInfo?.includedIn?.length === 0)) {
-                        filteredStandaloneSets.push(deepClone(ps));
-                        highlightedIds.add(ps.permissionSetId);
-                    }
-                    filteredStandaloneSets.push(deepClone(ps));
-                    highlightedIds.add(ps.permissionSetId);
-                }
-            }
-
+            const targetPsNames = payload.permissionsAPINames.split(',').map(name => name.trim());
+            setsToCheck = originalStandaloneSets.filter(ps => targetPsNames.includes(ps.name));
         }
+
+        const filteredStandaloneSets = [];
+        for (const ps of setsToCheck) {
+            const detectedInfo = this.findPermission(detectedPermissions, ps.permissionSetId);
+
+            if (ps.permissionSetId.startsWith('0PS') && detectedInfo && (!detectedInfo.includedIn || detectedInfo.includedIn.length === 0)) {
+                console.log(ps.permissionSetId + ' starts with 0PS: '+ps.permissionSetId.startsWith('0PS'));
+                console.log(JSON.stringify(ps));
+                filteredStandaloneSets.push(deepClone(ps));
+                highlightedIds.add(ps.permissionSetId);
+            }
+        }
+
         if (filteredStandaloneSets.length > 0) {
             branch.children = filteredStandaloneSets;
             return branch;
         }
-
         return null;
     }
 
@@ -142,13 +131,40 @@ export class PermissionHierarchyFilter {
         return ids;
     }
 
-    findDetectedInfo(node, id) {
+    findPermission(data, id) {
+        if (!data) {
+            return null;
+        }
+
+        if (Array.isArray(data)) {
+            for (const item of data) {
+                // Search each item in the array recursively.
+                const found = this._findRecursive(item, id);
+                if (found) {
+                    return found;
+                }
+            }
+        }
+
+        else if (typeof data === 'object') {
+            return this._findRecursive(data, id);
+        }
+
+        return null;
+    }
+
+    _findRecursive(node, id) {
+        if (!node) {
+            return null;
+        }
+
         if (node.permissionSetId === id) {
             return node;
         }
+
         if (node.children && Array.isArray(node.children)) {
             for (const child of node.children) {
-                const found = this.findDetectedInfo(child, id);
+                const found = this._findRecursive(child, id);
                 if (found) {
                     return found;
                 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>63.0</apiVersion>
+    <apiVersion>64.0</apiVersion>
     <description>Ps Lab Multi Select Combo Box</description>
     <isExposed>true</isExposed>
     <masterLabel>Ps Lab Multi Select Combo Box</masterLabel>

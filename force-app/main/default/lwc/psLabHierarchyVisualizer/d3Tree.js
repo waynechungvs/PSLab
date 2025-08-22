@@ -33,6 +33,7 @@ export class D3Tree {
             .attr("width", containerWidth)
             .attr("style", "overflow: visible; width: 100%; max-width: 100%; height: auto; font: 10px sans-serif; user-select: none;");
 
+
         const initialLeftMargin = 120;
 
         this._linkGroup = this._svg.append("g")
@@ -72,7 +73,7 @@ export class D3Tree {
         this._rootNode.each(d => {
             if (d._children) {
                 d.children = d._children;
-                d._children = null;
+                //d._children = null;
             }
         });
         this._render(this._rootNode);
@@ -130,6 +131,18 @@ export class D3Tree {
                     d._children = null;
                 }
                 this._render(d);
+            }).on("click", (event, d) => {
+                if (d._children) {
+                    d.children = d.children ? null : d._children;
+                    this._render(d);
+                } else {
+                    window.open(`/lightning/setup/PermSets/page?address=/${d.data.permissionSetId}`, "_blank");
+                }
+            }).on("contextmenu", (event, d) => {
+                event.preventDefault();
+                if ((d.data.name !== 'Permission Set Groups' && d.data.name !== 'Standalone Permission Sets' ) &&  (d.children || d._children)) {
+                    window.open(`/lightning/setup/PermSets/page?address=/${d.data.permissionSetId}`, "_blank");
+                }
             });
 
         const tooltipDiv = d3.select(this._container).select('.d3-tooltip');
@@ -139,7 +152,7 @@ export class D3Tree {
                 if (data.type === "PSG" || data.type === "PS" || data.type === "parentNode") return;
 
                 const contentHtml = `
-                    <div class="tooltip-line"><strong>Name:</strong> ${data.label || data.name || "N/A"}</div>
+                    <div class="tooltip-line"><strong>Name:</strong> ${data.label || "N/A"}</div>
                     <div class="tooltip-line"><strong>API Name:</strong> ${data.name || "N/A"}</div>
                     ${data.description ? `<div class="tooltip-line"><strong>Description:</strong> ${data.description}</div>` : ""}
                     ${data.status ? `<div class="tooltip-line"><strong>Status:</strong> ${data.status}</div>` : ""}
@@ -236,7 +249,7 @@ export class D3Tree {
             const words = text.text().split(/\s+/).reverse();
             let word;
             let line = [];
-            const lineHeight = 1.1; // ems
+            const lineHeight = 1.1;
             const x = text.attr("x");
             const dy = parseFloat(text.attr("dy"));
             text.text(null);

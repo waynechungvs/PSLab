@@ -46,7 +46,7 @@
 
 
     <div lwc:if={showFilterItemData}>
-      <c-ps-lab-detector-filter-item onselectionchange={handleMetadataSelectionChange} filter-item-data={filterItemData}></c-ps-lab-detector-filter-item>
+      <c-ps-lab-detector-filter-item onselectionchange={handleMetadataSelectionChange} filter-item-data={filterItemData} ></c-ps-lab-detector-filter-item>
     </div>
 
     <div lwc:if={filterSecurityPermissions}>
@@ -66,8 +66,8 @@
     <lightning-spinner lwc:if={showSpinner}></lightning-spinner>
 
     <div class="slds-grid">
-      <div lwc:if={showDetectButton} class="slds-m-top_medium slds-col slds-align_absolute-center">
-        <lightning-button label="Detect" onclick={detectPermissions}></lightning-button>
+      <div class="slds-m-top_medium slds-col slds-align_absolute-center">
+        <lightning-button label="Detect" onclick={detectPermissions} disabled={disableDetectButton}></lightning-button>
       </div>
       <div  class="slds-m-top_medium slds-col slds-align_absolute-center">
         <lightning-button label="Reset" onclick={resetFilterInputs} variant="destructive"></lightning-button>

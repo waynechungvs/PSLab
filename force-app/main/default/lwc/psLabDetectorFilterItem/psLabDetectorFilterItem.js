@@ -7,6 +7,7 @@ import { LightningElement, api } from "lwc";
 export default class PsLabDetectorFilterItem extends LightningElement {
   selectedOptions = [];
 
+
   _filterItemData;
 
   get filterItemData() {
@@ -28,6 +29,10 @@ export default class PsLabDetectorFilterItem extends LightningElement {
 
   get isRequired() {
     return this.filterItemData.isRequired;
+  }
+
+  get isDisabled() {
+    return this.filterItemData?.disabled;
   }
 
   get isMultiSelect() {
@@ -77,5 +82,10 @@ export default class PsLabDetectorFilterItem extends LightningElement {
         detail: { values: selectedValues }
       })
     );
+  }
+
+  @api
+  resetInternalSelection() {
+    this.selectedOptions = [];
   }
 }

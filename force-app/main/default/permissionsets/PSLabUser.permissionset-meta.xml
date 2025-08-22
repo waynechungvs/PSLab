@@ -40,8 +40,20 @@
         <enabled>true</enabled>
         <name>PSLab_SP__mdt</name>
     </customMetadataTypeAccesses>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>PSLab_CustomPermission</name>
+    </customPermissions>
+    <customSettingAccesses>
+        <enabled>true</enabled>
+        <name>PSLab_CustomSetting__c</name>
+    </customSettingAccesses>
     <hasActivationRequired>false</hasActivationRequired>
     <label>PS Lab User</label>
+    <pageAccesses>
+        <apexPage>PSLab_ApexPage</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
     <tabSettings>
         <tab>Permissions_Analyser</tab>
         <visibility>Visible</visibility>
@@ -50,4 +62,12 @@
         <tab>Permissions_Exporter</tab>
         <visibility>Visible</visibility>
     </tabSettings>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ViewRoles</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ViewSetup</name>
+    </userPermissions>
 </PermissionSet>

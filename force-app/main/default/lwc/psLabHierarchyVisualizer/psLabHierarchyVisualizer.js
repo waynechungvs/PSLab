@@ -16,6 +16,7 @@ export default class PSLabHierarchyVisualizer extends LightningElement {
     _chart;
     _filterService = new PermissionHierarchyFilter();
     _originalHierarchyData;
+    _contextualHierarchyData;
     _currentHierarchyData;
 
     get settingsSectionClass() {
@@ -120,13 +121,28 @@ export default class PSLabHierarchyVisualizer extends LightningElement {
 
         this.isLoading = true;
 
-        const { filteredData, highlightedIds } = this._filterService.filter(
-            this._originalHierarchyData,
-            permissionSets,
-            payload
-        );
+        const baseHierarchy = this._contextualHierarchyData || this._originalHierarchyData;
 
-        if (filteredData && filteredData.children.length > 0) {
+
+        let filteredData;
+        let highlightedIds;
+
+        if (Object.keys(payload).length === 0) {
+            this._contextualHierarchyData = permissionSets;
+            filteredData = permissionSets;
+            highlightedIds = this._filterService.collectIds(permissionSets);
+
+        } else {
+            const filterResult = this._filterService.filter(
+                baseHierarchy,
+                permissionSets,
+                payload
+            );
+            filteredData = filterResult.filteredData;
+            highlightedIds = filterResult.highlightedIds;
+        }
+
+        if (filteredData && filteredData.children && filteredData.children.length > 0) {
             this._chart.update(filteredData, highlightedIds);
             this._chart.expandAll();
             this.expansionState = "expanded";
@@ -138,6 +154,9 @@ export default class PSLabHierarchyVisualizer extends LightningElement {
         this.isLoading = false;
     }
 
+    handleClearContext(){
+        this._contextualHierarchyData = null;
+    }
     handleFilterReset() {
         this._currentHierarchyData = deepClone(this._originalHierarchyData);
         this._chart.update(this._currentHierarchyData, new Set());
