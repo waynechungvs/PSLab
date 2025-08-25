@@ -1,3 +1,12 @@
+/**
+ * @description Multi-select combobox component for LWC.
+ *
+ * NOTE: This component was adapted from an open-source project that I can
+ * no longer locate. The original author deserves full credit for the core
+ * logic and structure. If you recognize this code, please open an issue on
+ * this project's GitHub repository so that proper attribution can be provided.
+ */
+
 import { LightningElement, api, track } from "lwc";
 
 export default class PsLabMultiSelectComboBox extends LightningElement {
