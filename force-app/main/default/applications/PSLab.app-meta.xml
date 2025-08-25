@@ -12,7 +12,7 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
-    <label>Permissions Lab</label>
+    <label>PS Lab</label>
     <navType>Standard</navType>
     <tabs>Permissions_Analyser</tabs>
     <tabs>Permissions_Exporter</tabs>
