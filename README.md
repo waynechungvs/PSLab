@@ -132,6 +132,7 @@ Once the deployment is done, follow these steps:
 3. Go to the **External Credential Principal Access**, then click **Edit**.
 4. Select the **External Credential Principal Name** created in the [Pre-Installation Setup Guide](#pre-installation-setup-guide), and add it to the Enabled External Credential Principals list.
 5. Click Save
+6. Click on **Manage Assignments**, and assign the PS Lab User permission to your user.
 
 And Voilà! You are all set to use PS Lab.
 
