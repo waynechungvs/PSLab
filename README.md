@@ -12,6 +12,7 @@
 - [Installation](#installation)
 - [Post-Installation Setup Guide](#post-installation-setup-guide)
 - [Walkthrough](#walkthrough)
+- [Limitations](#limitations)
 - [Authors](#authors)
 - [Contributing](#contributing)
 - [License](#license)
@@ -139,6 +140,13 @@ And Voilà! You are all set to use PS Lab.
 
 # Walkthrough
 
+### Definitions:
+* **Standalone Permission Set**
+A Standalone Permission Set is simply a Permission Set that is not grouped into a Permission Set Group. It can be assigned directly to a user on its own.
+
+* **Permission Set Group**
+A Permission Set Group bundles multiple Permission Sets into a single, assignable unit.
+
 Here’s how PS Lab works in action:
 1. **Explore the Permission Hierarchy**  
    Open PSLab from the App Launcher. You’ll see an interactive tree of all Permission Set Groups and Permission Sets in your org.
@@ -161,6 +169,28 @@ Here’s how PS Lab works in action:
 4. **Export for Documentation**  
       Export any Permission Set to CSV for offline review or compliance audits.
    ![CSV Export Screenshot](resources/CSV-Export-Screenshot.gif)
+
+
+# Limitations
+
+* **Field-Level Security (FLS)**:
+  PS Lab does not display every single field when showing the fields combobox. This is because Salesforce treats certain fields with special rules defined in the FieldPermissions object:
+    * Auto-number and Formula fields → have FieldPermissions records but are always read-only (PermissionsRead = true, PermissionsEdit = false).
+    * The following field types **don’t return** a FieldPermissions record because they are **assumed to be always readable**:
+      * Id
+      * CreatedById
+      * CreatedDate
+      * IsDeleted
+      * LastModifiedById
+      * LastModifiedDate
+      * SystemModStamp
+   * The following field types don’t return a FieldPermissions record because they are **assumed to be always readable and writable**:
+      * OwnerId
+      * Master-detail custom relationship fields
+      * Universally required custom fields
+    
+  To keep results clear and concise, PS Lab excludes these fields when displaying FLS permissions.
+
 
 # Authors
 * Oumaima ARBANI - PS Lab Solution Designer & Developer
